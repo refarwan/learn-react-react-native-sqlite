@@ -1,118 +1,55 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useCallback, useEffect, useState } from 'react'
+import { Text, TextInput, View, TouchableOpacity } from 'react-native'
 
-import React from 'react';
-import type { PropsWithChildren } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({ children, title }: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+import { getDBConnection } from './src/configs/database'
+import { getAllPeoples, searchPeoples } from './src/services/people'
+import peopleModel from './src/models/people'
 
 function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [peoples, setPeoples] = useState<peopleModel[]>([])
+  const [searchValue, setSearchValue] = useState<String>("")
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const loadDataCallback = useCallback(async () => {
+    try {
+      const db = await getDBConnection();
+      const peoplesData: peopleModel[] = await getAllPeoples(db)
+      setPeoples(peoplesData)
+    } catch (error) {
+      console.error(error);
+    }
+  }, [])
+
+  useEffect(() => {
+    loadDataCallback()
+  }, [loadDataCallback])
+
+  const search = async () => {
+    try {
+      const db = await getDBConnection();
+      const peoplesData: peopleModel[] = await searchPeoples(db, searchValue)
+      setPeoples(peoplesData)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    console.log("Screen Rendered")
+  }, [])
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    <View style={{ flex: 1, padding: 20, gap: 20 }}>
+      <TextInput onChangeText={text => setSearchValue(text)} style={{ borderWidth: 1, borderRadius: 6, paddingHorizontal: 15 }} />
+      <TouchableOpacity onPress={search}>
+        <Text style={{ color: "white", height: 40, backgroundColor: "blue", lineHeight: 40, textAlign: "center", borderRadius: 6 }}>Search</Text>
+      </TouchableOpacity>
+      {peoples.map((people, index) => (
+        <Text key={index}>
+          {people.name}
+        </Text>
+      ))}
+    </View>
+  )
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
