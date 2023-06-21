@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Text, TextInput, View, TouchableOpacity } from 'react-native'
 
 import { getDBConnection } from './src/configs/database'
-import { addPeople, getAllPeoples, searchPeoples } from './src/services/people'
+import { addPeople, getAllPeoples, searchPeoples, deletePeople } from './src/services/people'
 import peopleModel from './src/models/people'
 
 function App(): JSX.Element {
@@ -49,6 +49,17 @@ function App(): JSX.Element {
     }
   }
 
+  const deletePeopleFunc = async (id: Number) => {
+    try {
+      const db = await getDBConnection();
+      await deletePeople(db, id)
+      const peoplesData: peopleModel[] = await getAllPeoples(db)
+      setPeoples(peoplesData)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <View style={{ flex: 1, padding: 20, gap: 20 }}>
       <TextInput onChangeText={text => setSearchValue(text)} style={{ borderWidth: 1, borderRadius: 6, paddingHorizontal: 15 }} />
@@ -56,9 +67,11 @@ function App(): JSX.Element {
         <Text style={{ color: "white", height: 40, backgroundColor: "blue", lineHeight: 40, textAlign: "center", borderRadius: 6 }}>Search</Text>
       </TouchableOpacity>
       {peoples.map((people, index) => (
-        <Text key={index}>
-          {people.name}
-        </Text>
+        <TouchableOpacity key={index} onPress={() => deletePeopleFunc(people.id)}>
+          <Text>
+            {people.name}
+          </Text>
+        </TouchableOpacity>
       ))}
 
       <TextInput onChangeText={text => setNewPeople(text)} style={{ borderWidth: 1, borderRadius: 6, paddingHorizontal: 15 }} />

@@ -42,3 +42,13 @@ export const addPeople = async (db: SQLiteDatabase, name: String): Promise<void>
         throw Error("Failed to add people")
     }
 }
+
+export const deletePeople = async (db: SQLiteDatabase, id: Number): Promise<void> => {
+    try {
+        const result = await db.executeSql(`DELETE FROM people WHERE id = ${id}`)
+        console.log(result)
+    } catch (error) {
+        console.error(error)
+        throw Error("Failed to add people")
+    }
+}
