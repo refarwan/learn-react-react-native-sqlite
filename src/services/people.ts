@@ -32,3 +32,13 @@ export const searchPeoples = async (db: SQLiteDatabase, search: String): Promise
         throw Error('Failed to search peoples')
     }
 }
+
+export const addPeople = async (db: SQLiteDatabase, name: String): Promise<void> => {
+    try {
+        const result = await db.executeSql(`INSERT INTO people (name) VALUES ("${name}")`)
+        console.log(result)
+    } catch (error) {
+        console.error(error)
+        throw Error("Failed to add people")
+    }
+}
