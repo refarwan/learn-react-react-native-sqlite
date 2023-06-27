@@ -1,26 +1,26 @@
 import { useState } from "react"
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 
-import { addPeople } from "../services/people"
+import { editPeople } from "../services/people"
 
-const AddForm = ({ setAddFormShow, callback }: { setAddFormShow: Function, callback: Function }) => {
-    const [name, setName] = useState<string>("")
+const EditForm = ({ name, id, setPeopleEdit, callback }: { name: string, id: number, setPeopleEdit: Function, callback: Function }) => {
+    const [newName, setNewName] = useState<string>(name)
 
-    const add = async () => {
-        const result = await addPeople(name)
+    const edit = async () => {
+        const result = await editPeople(id, newName)
         if (result) {
             callback()
-            setAddFormShow(false)
+            setPeopleEdit(null)
         }
     }
 
     return (
-        <View onTouchStart={() => setAddFormShow(false)} style={style.hover}>
+        <View onTouchStart={() => setPeopleEdit(null)} style={style.hover}>
             <View onTouchStart={event => event.stopPropagation()} style={style.popup}>
-                <Text style={style.title}>Add People</Text>
-                <TextInput onChangeText={text => setName(text)} placeholder="Name" style={style.input} />
-                <TouchableOpacity onPressOut={add} style={style.buttonAdd}>
-                    <Text style={style.textButtonAdd}>Add</Text>
+                <Text style={style.title}>Edit People</Text>
+                <TextInput onChangeText={text => setNewName(text)} value={newName} placeholder="Name" style={style.input} />
+                <TouchableOpacity onPressOut={edit} style={style.buttonAdd}>
+                    <Text style={style.textButtonAdd}>Save</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -73,4 +73,4 @@ const style = StyleSheet.create({
     }
 })
 
-export default AddForm
+export default EditForm

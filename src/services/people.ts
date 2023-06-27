@@ -20,9 +20,10 @@ export const getAllPeoples = async (): Promise<peopleModel[]> => {
     }
 }
 
-export const searchPeoples = async (db: SQLiteDatabase, search: String): Promise<peopleModel[]> => {
+export const searchPeoples = async (search: String): Promise<peopleModel[]> => {
     try {
         const peopleItems: peopleModel[] = []
+        const db = await getDBConnection()
         const results = await db.executeSql(`SELECT * FROM people WHERE name LIKE "%${search}%"`)
         results.forEach(result => {
             for (let index = 0; index < result.rows.length; index++) {
@@ -47,20 +48,21 @@ export const addPeople = async (name: String): Promise<Boolean> => {
     }
 }
 
-export const deletePeople = async (db: SQLiteDatabase, id: Number): Promise<void> => {
+export const deletePeople = async (id: Number): Promise<void> => {
     try {
-        const result = await db.executeSql(`DELETE FROM people WHERE id = ${id}`)
-        console.log(result)
+        const db = await getDBConnection()
+        await db.executeSql(`DELETE FROM people WHERE id = ${id}`)
     } catch (error) {
         console.error(error)
         throw Error("Failed to delete people")
     }
 }
 
-export const editPeople = async (db: SQLiteDatabase, id: Number, name: String): Promise<void> => {
+export const editPeople = async (id: Number, newName: String): Promise<Boolean> => {
     try {
-        const result = await db.executeSql(`UPDATE people SET name = "${name}" WHERE id = ${id}`)
-        console.log(result)
+        const db = await getDBConnection()
+        await db.executeSql(`UPDATE people SET name = "${newName}" WHERE id = ${id}`)
+        return true
     } catch (error) {
         console.error(error)
         throw Error("Failed to update people")

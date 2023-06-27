@@ -1,6 +1,6 @@
-type peopleModel = {
-    id: Number
-    name: String
+type PeopleModel = {
+    id: number
+    name: string
 }
 
-export default peopleModel
+export default PeopleModel
